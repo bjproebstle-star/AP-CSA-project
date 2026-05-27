@@ -48,7 +48,7 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
         gravitySlider.addChangeListener(this);
 
         resetButton = new JButton("Reset Simulation");
-        pauseButton = new JButton("Pause/Resume");
+        pauseButton = new JButton("Pause");
         clearBallsButton = new JButton("Clear Balls");
 
         addBallButton = new JButton("Add Ball");
@@ -65,6 +65,8 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
             public void actionPerformed(ActionEvent e) {
                 gravitySlider.setValue(DEFAULT_GRAVITY_SLIDER_VAL);
                 gravity = DEFAULT_GRAVITY;
+                isPaused = false;
+                pauseButton.setText("Pause");
 
                 balls.clear();
                 balls.add(new Ball());
@@ -136,13 +138,16 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
     @Override
     public void actionPerformed(ActionEvent e) {
         int floorY = HEIGHT - 100;
-        if(isPaused) {
+
+        if (isPaused) {
             repaint();
             return;
         }
+
         for (Ball ball : balls) {
-            // Apply gravity
-            ball.velocityY += gravity;
+            // Apply gravity based on ball size
+            double sizeGravity = gravity * (ball.radius / 20.0);
+            ball.velocityY += sizeGravity;
 
             // Move ball
             ball.x += ball.velocityX;
@@ -165,7 +170,7 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
                 ball.y = floorY - ball.radius;
                 ball.velocityY = ball.velocityY * bounceCoefficient;
 
-                if (Math.abs(ball.velocityY) < (gravity * 1.5)) {
+                if (Math.abs(ball.velocityY) < (sizeGravity * 1.5)) {
                     ball.velocityY = 0;
                 }
             }
@@ -186,7 +191,7 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
         double y = 50 + Math.random() * 80;
         double velocityX = -3 + Math.random() * 6;
         double velocityY = -2 + Math.random() * 4;
-        int radius = 20;
+        int radius = (int) (Math.random() * 31 + 20);
 
         Color color = new Color(
             (int) (Math.random() * 256),
