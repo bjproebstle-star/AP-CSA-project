@@ -25,6 +25,10 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
     private JSlider gravitySlider;
     private JButton resetButton;
 
+    private JButton pauseButton;
+    private JButton clearBallsButton;
+    private boolean isPaused = false;
+
     public PhysicsSimulation() {
         balls.add(new Ball());
 
@@ -44,6 +48,8 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
         gravitySlider.addChangeListener(this);
 
         resetButton = new JButton("Reset Simulation");
+        pauseButton = new JButton("Pause/Resume");
+        clearBallsButton = new JButton("Clear Balls");
 
         addBallButton = new JButton("Add Ball");
         addBallButton.addActionListener(new ActionListener() {
@@ -67,10 +73,33 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
             }
         });
 
+        pauseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                isPaused = !isPaused;
+                if (isPaused) {
+                    pauseButton.setText("Resume");
+                } else {
+                    pauseButton.setText("Pause");
+                }
+            }
+        });
+
+        clearBallsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                balls.clear();
+                balls.add(new Ball());
+                repaint();
+            }
+        });
+
         controlPanel.add(label);
         controlPanel.add(gravitySlider);
         controlPanel.add(addBallButton);
         controlPanel.add(resetButton);
+        controlPanel.add(pauseButton);
+        controlPanel.add(clearBallsButton);
 
         return controlPanel;
     }
@@ -107,7 +136,10 @@ public class PhysicsSimulation extends JPanel implements ActionListener, ChangeL
     @Override
     public void actionPerformed(ActionEvent e) {
         int floorY = HEIGHT - 100;
-
+        if(isPaused) {
+            repaint();
+            return;
+        }
         for (Ball ball : balls) {
             // Apply gravity
             ball.velocityY += gravity;
